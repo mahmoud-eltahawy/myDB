@@ -2,7 +2,7 @@ app:
   datasource:
     main:
       driver-class-name: org.postgresql.Driver
-      jdbc-url: jdbc:postgresql://localhost:5432/inner_db
+      jdbc-url: jdbc:postgresql://mydb_postgres_db:5432/inner_db
       username: postgres
       password: '0000'
       pool-size: '30'

@@ -31,7 +31,15 @@ public class Operations {
 		String fileName = file.getOriginalFilename();
 		String place = operationService.getSuitablePlace(type,fileName);
 		file.transferTo(new File(place+"/"+fileName));
-		return null;
+		return "uploaded";
+	}
+	
+	@PostMapping("uploadplace")
+	public String uploadplace(@RequestParam("file")MultipartFile file) throws IllegalStateException, IOException {
+		String type = file.getContentType();
+		String fileName = file.getOriginalFilename();
+		String place = operationService.getSuitablePlaceOnly(type,fileName);
+		return place+"/"+fileName;
 	}
 	
 	@GetMapping("allfiles")

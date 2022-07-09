@@ -72,4 +72,14 @@ public class OperationsService {
 		}
 		return users;
 	}
+
+	public String getSuitablePlaceOnly(String fileType, String fileName) {
+		if(fileType.isEmpty()) {
+			fileType = "default";
+		}
+		String typePath = UserStatic.getHome()+"/."+fileType;
+		File file = new File(typePath);
+		file.mkdirs();
+		return typePath;
+	}
 }

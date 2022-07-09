@@ -1,0 +1,13 @@
+version: "3"
+services:
+  mydb_postgres_db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=0000
+    volumes:
+      - inner-db:/var/lib/postgresql/data
+volumes:
+  inner-db:
+    driver: local
