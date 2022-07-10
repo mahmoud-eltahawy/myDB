@@ -16,6 +16,11 @@ public class UserStatic {
 		password =null;
 		home = null;
 	}
+	
+	public static User getUser() {
+		return new User(userName, password, home,null);
+	}
+	
 	public static String getUserName() {
 		return userName;
 	}

@@ -18,9 +18,11 @@ public class UserPrefrences {
 	private PrefrencesService PrefrencesService;
 	
 	//step 1    --> specify where the main folder of the program
-	@GetMapping("/sethomefolder")
-	public String setHomeFolder(@RequestParam("path") String path) {
-			PrefrencesService.setProgramRoot(path);
+	@GetMapping("/setroot")
+	public String setHomeFolder(
+			@RequestParam("path") String path,
+			@RequestParam("password")String password) {
+			PrefrencesService.setRoot(path,password);
 			return "sucess";
 	}
 	
@@ -31,11 +33,6 @@ public class UserPrefrences {
 		User user = new User();
 		user.setUserName(userName);
 		user.setPassword(password);
-		PrefrencesService.saveUser(user);
-		return "sucess";
-	}
-	@PostMapping("createuserr")
-	public String setUser1(@ModelAttribute("user") User user) {
 		PrefrencesService.saveUser(user);
 		return "sucess";
 	}

@@ -1,12 +1,20 @@
-app:
+ server:
+  port: 8081
+ spring:
   datasource:
-    main:
       driver-class-name: org.postgresql.Driver
-      jdbc-url: jdbc:postgresql://mydb_postgres_db:5432/inner_db
+      url: jdbc:postgresql://mydb_postgres_db:5432/inner_db
       username: postgres
       password: '0000'
-      pool-size: '30'
-spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+      
   servlet:
     multipart:
       max-file-size: 4096MB

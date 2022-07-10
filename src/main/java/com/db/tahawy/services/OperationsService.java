@@ -1,4 +1,3 @@
-
 package com.db.tahawy.services;
 
 import java.io.BufferedInputStream;
@@ -11,20 +10,23 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.db.tahawy.dao.ProgramDao;
+import com.db.tahawy.dao.FileJpa;
+import com.db.tahawy.dao.UserJpa;
 import com.db.tahawy.model.LocalFile;
 import com.db.tahawy.model.User;
 import com.db.tahawy.model.UserStatic;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
+import lombok.AllArgsConstructor;
+
 @Service
+@AllArgsConstructor
 public class OperationsService {
 
-	@Autowired
-	private ProgramDao programDao;
+	private UserJpa userJpa;
+	private FileJpa fileJpa;
 	// persist data in database also 
 	public String getSuitablePlace(String fileType,String fileName) {
 		if(fileType.isEmpty()) {
@@ -33,20 +35,21 @@ public class OperationsService {
 		String typePath = UserStatic.getHome()+"/."+fileType;
 		File file = new File(typePath);
 		file.mkdirs();
-		programDao.saveFile(new LocalFile(UserStatic.getUserName(), fileName, typePath, fileType));
+		fileJpa.save(new LocalFile(fileName,UserStatic.getUser(), typePath, fileType));
 		return typePath;
 	}
 
 	public List<LocalFile> getUserAllFiles() {
-		return programDao.getUserAllFiles();
+		return userJpa.findById(UserStatic.getUserName()).get().getFiles();
 	}
 
+	// TODO
 	public List<LocalFile> getUserAllFilesByType(String type) {
-		return programDao.getUserAllFilesByType(type);
+		return fileJpa.findByFileType(type);
 	}
 
 	public LocalFile getFileByName(String name) {
-		return programDao.getFileByName(name);
+		return fileJpa.findById(name).get();
 	}
 
 	public void downloader(LocalFile file0, HttpServletResponse response) throws IOException {
@@ -66,7 +69,7 @@ public class OperationsService {
 	}
 
 	public List<User> getUsers() {
-		List<User> users = programDao.listUsers();
+		List<User> users = userJpa.findAll();
 		for (User user : users) {
 			user.setPassword("************");
 		}
