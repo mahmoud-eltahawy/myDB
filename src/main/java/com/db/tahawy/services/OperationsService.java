@@ -11,9 +11,12 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.db.tahawy.dao.FileJpa;
+import com.db.tahawy.dao.UserFileJpa;
 import com.db.tahawy.dao.UserJpa;
 import com.db.tahawy.model.LocalFile;
 import com.db.tahawy.model.User;
+import com.db.tahawy.model.UserFile;
+import com.db.tahawy.model.UserFileId;
 import com.db.tahawy.model.UserStatic;
 
 import org.springframework.stereotype.Service;
@@ -27,7 +30,8 @@ public class OperationsService {
 
 	private UserJpa userJpa;
 	private FileJpa fileJpa;
-	// persist data in database also 
+	private UserFileJpa userFileJpa;
+	// this method persist data in database also 
 	public String getSuitablePlace(String fileType,String fileName) {
 		if(fileType.isEmpty()) {
 			fileType = "default";
@@ -35,17 +39,25 @@ public class OperationsService {
 		String typePath = UserStatic.getHome()+"/."+fileType;
 		File file = new File(typePath);
 		file.mkdirs();
-		fileJpa.save(new LocalFile(fileName,UserStatic.getUser(), typePath, fileType));
+		fileJpa.save(new LocalFile(fileName,UserStatic.getUser(), typePath, fileType,false));
 		return typePath;
 	}
 
-	public List<LocalFile> getUserAllFiles() {
-		return userJpa.findById(UserStatic.getUserName()).get().getFiles();
+	public List<LocalFile> getUserprivateFiles() {
+		return fileJpa.findUserPrivateFiles(UserStatic.getUser().getUserName());
 	}
 
-	// TODO
-	public List<LocalFile> getUserAllFilesByType(String type) {
-		return fileJpa.findByFileType(type);
+	public List<LocalFile> getUserRecivedFiles() {
+		return fileJpa.findUserRecivedFiles(UserStatic.getUser().getUserName());
+	}
+	
+	
+	public List<LocalFile> getUserpublicFiles() {
+		return fileJpa.findFileByIsPublic(true);
+	}
+	
+	public List<LocalFile> getAllFilesByType(String type) {
+		return fileJpa.findByFileTypeContaining(type);
 	}
 
 	public LocalFile getFileByName(String name) {
@@ -84,5 +96,28 @@ public class OperationsService {
 		File file = new File(typePath);
 		file.mkdirs();
 		return typePath;
+	}
+	
+	public List<String> getAllTypes(){
+		return fileJpa.findAllTypes();
+	}
+
+	public void share(String filename, String username) {
+		LocalFile file = fileJpa.findById(filename).get();
+		User user = userJpa.findById(username).get();
+		UserFileId userFileId = new UserFileId(user, file);
+		if(username.equals(file.getUser().getUserName())) {
+			userFileJpa.deleteById(userFileId);
+		} else {
+			userFileJpa.save(new UserFile(userFileId));
+		}
+	}
+
+	public void publish(String filename) {
+		if(fileJpa.isFilePublic(filename)) {
+			fileJpa.depublish(filename);
+		} else {
+			fileJpa.publish(filename);
+		}
 	}
 }

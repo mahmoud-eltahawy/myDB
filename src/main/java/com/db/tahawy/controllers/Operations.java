@@ -1,4 +1,3 @@
-
 package com.db.tahawy.controllers;
 
 import java.io.File;
@@ -42,13 +41,21 @@ public class Operations {
 		return place+"/"+fileName;
 	}
 	
-	@GetMapping("allfiles")
+	@GetMapping("privatefiles")
 	public List<LocalFile> getAllFilesNames(){
-		return operationService.getUserAllFiles();
+		return operationService.getUserprivateFiles();
+	}
+	@GetMapping("publicfiles")
+	public List<LocalFile> getPublicFiles(){
+		return operationService.getUserpublicFiles();
+	}
+	@GetMapping("recivedfiles")
+	public List<LocalFile> getRecivedFiles(){
+		return operationService.getUserRecivedFiles();
 	}
 	@GetMapping("filesbytype")
 	public List<LocalFile> getAllFilesByType(@RequestParam("type")String type){
-		return operationService.getUserAllFilesByType(type);
+		return operationService.getAllFilesByType(type);
 	}
 	
 	@RequestMapping("/download")
@@ -57,8 +64,24 @@ public class Operations {
 		operationService.downloader(lfile, response);
 	}
 	
+	@RequestMapping("/share")
+	public void share(@RequestParam("filename")String filename,
+			@RequestParam("username")String username) {
+		operationService.share(filename,username);
+	}
+	
+	@RequestMapping("/publish")
+	public void share(@RequestParam("filename")String filename) {
+		operationService.publish(filename);
+	}
+	
 	@RequestMapping("/lu")
 	public List<User> listUSers(){
 		return operationService.getUsers();
+	}
+	
+	@RequestMapping("/lt")
+	public List<String> listTypes(){
+		return operationService.getAllTypes();
 	}
 }

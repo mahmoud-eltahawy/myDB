@@ -18,7 +18,7 @@ public class UserStatic {
 	}
 	
 	public static User getUser() {
-		return new User(userName, password, home,null);
+		return new User(userName, password, home);
 	}
 	
 	public static String getUserName() {

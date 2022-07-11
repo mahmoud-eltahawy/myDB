@@ -19,7 +19,7 @@ public class PrefrencesService {
 		String programHome = path;
 		File file = new File(programHome);
 		file.mkdirs();
-		userJpa.save(new User( "root", password, path,null));
+		userJpa.save(new User( "root", password, path));
 	}
 	
 	//can't be executed without initializing program home

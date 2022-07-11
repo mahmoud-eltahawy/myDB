@@ -5,6 +5,7 @@ import com.db.tahawy.model.User;
 import com.db.tahawy.services.PrefrencesService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,7 @@ public class UserPrefrences {
 	private PrefrencesService PrefrencesService;
 	
 	//step 1    --> specify where the main folder of the program
-	@GetMapping("/setroot")
+	@PostMapping("/setroot")
 	public String setHomeFolder(
 			@RequestParam("path") String path,
 			@RequestParam("password")String password) {
