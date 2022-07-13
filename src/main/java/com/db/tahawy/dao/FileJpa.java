@@ -34,21 +34,21 @@ public interface FileJpa extends JpaRepository<LocalFile, String>{
 			)
 	List<String> findAllTypes();
 	@Query(
-			value = "select f.is_public from files f where f.user_name_key = ?1",
+			value = "select f.is_public from files f where f.name = ?1",
 			nativeQuery = true
 			)
 	boolean isFilePublic(String filename);
 	@Modifying
 	@Transactional
 	@Query(
-			value = "update files set is_public = false where user_name_key = ?1",
+			value = "update files set is_public = false where name = ?1",
 			nativeQuery = true
 			)
 	void depublish(String filename);
 	@Modifying
 	@Transactional
 	@Query(
-			value = "update files set is_public = true where user_name_key = ?1",
+			value = "update files set is_public = true where name = ?1",
 			nativeQuery = true
 			)
 	void publish(String filename);

@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.db.tahawy.model.FileModel;
 import com.db.tahawy.model.LocalFile;
 import com.db.tahawy.model.User;
+import com.db.tahawy.model.UserModel;
+import com.db.tahawy.model.UserStatic;
 import com.db.tahawy.services.OperationsService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -42,19 +45,19 @@ public class Operations {
 	}
 	
 	@GetMapping("privatefiles")
-	public List<LocalFile> getAllFilesNames(){
+	public List<FileModel> getAllFilesNames(){
 		return operationService.getUserprivateFiles();
 	}
 	@GetMapping("publicfiles")
-	public List<LocalFile> getPublicFiles(){
+	public List<FileModel> getPublicFiles(){
 		return operationService.getUserpublicFiles();
 	}
 	@GetMapping("recivedfiles")
-	public List<LocalFile> getRecivedFiles(){
+	public List<FileModel> getRecivedFiles(){
 		return operationService.getUserRecivedFiles();
 	}
 	@GetMapping("filesbytype")
-	public List<LocalFile> getAllFilesByType(@RequestParam("type")String type){
+	public List<FileModel> getAllFilesByType(@RequestParam("type")String type){
 		return operationService.getAllFilesByType(type);
 	}
 	
@@ -76,8 +79,10 @@ public class Operations {
 	}
 	
 	@RequestMapping("/lu")
-	public List<User> listUSers(){
-		return operationService.getUsers();
+	public List<UserModel> listUSers(){
+		return UserStatic.modelUser(
+				operationService.getUsers()
+				);
 	}
 	
 	@RequestMapping("/lt")

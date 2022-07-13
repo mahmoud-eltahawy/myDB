@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.db.tahawy.dao.FileJpa;
 import com.db.tahawy.dao.UserFileJpa;
 import com.db.tahawy.dao.UserJpa;
+import com.db.tahawy.model.FileModel;
 import com.db.tahawy.model.LocalFile;
 import com.db.tahawy.model.User;
 import com.db.tahawy.model.UserFile;
@@ -43,21 +44,31 @@ public class OperationsService {
 		return typePath;
 	}
 
-	public List<LocalFile> getUserprivateFiles() {
-		return fileJpa.findUserPrivateFiles(UserStatic.getUser().getUserName());
+	public List<FileModel> getUserprivateFiles() {
+		return UserStatic.modelFile(
+				fileJpa.findUserPrivateFiles
+				(UserStatic.getUser().getUserName())
+				);
 	}
 
-	public List<LocalFile> getUserRecivedFiles() {
-		return fileJpa.findUserRecivedFiles(UserStatic.getUser().getUserName());
+	public List<FileModel> getUserRecivedFiles() {
+		return UserStatic.modelFile(
+				fileJpa.findUserRecivedFiles
+				(UserStatic.getUser().getUserName())
+				);
 	}
 	
 	
-	public List<LocalFile> getUserpublicFiles() {
-		return fileJpa.findFileByIsPublic(true);
+	public List<FileModel> getUserpublicFiles() {
+		return UserStatic.modelFile(
+				fileJpa.findFileByIsPublic(true)
+				);
 	}
 	
-	public List<LocalFile> getAllFilesByType(String type) {
-		return fileJpa.findByFileTypeContaining(type);
+	public List<FileModel> getAllFilesByType(String type) {
+		return UserStatic.modelFile(
+				fileJpa.findByFileTypeContaining(type)
+				);
 	}
 
 	public LocalFile getFileByName(String name) {

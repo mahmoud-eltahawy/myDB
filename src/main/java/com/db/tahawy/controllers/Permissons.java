@@ -1,6 +1,7 @@
 
 package com.db.tahawy.controllers;
 
+import com.db.tahawy.model.UserModel;
 import com.db.tahawy.model.UserStatic;
 import com.db.tahawy.services.PermissonService;
 
@@ -27,8 +28,7 @@ public class Permissons {
 	}
 	
 	@RequestMapping("inuser")
-	public String[] getCurrentUser() {
-		String[] inuser = {UserStatic.getUserName(),UserStatic.getHome()};
-		return inuser;
+	public UserModel getCurrentUser() {
+		return UserStatic.modelUser(UserStatic.getUser());
 	}
 }
