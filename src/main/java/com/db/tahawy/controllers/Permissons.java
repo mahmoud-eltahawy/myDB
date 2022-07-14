@@ -29,6 +29,6 @@ public class Permissons {
 	
 	@RequestMapping("inuser")
 	public UserModel getCurrentUser() {
-		return UserStatic.modelUser(UserStatic.getUser());
+		return new UserModel(UserStatic.getUser().getUserName());
 	}
 }

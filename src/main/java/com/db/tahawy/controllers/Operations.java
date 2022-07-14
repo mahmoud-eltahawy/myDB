@@ -3,6 +3,7 @@ package com.db.tahawy.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.db.tahawy.model.FileModel;
 import com.db.tahawy.model.LocalFile;
@@ -34,6 +35,13 @@ public class Operations {
 		String type = file.getContentType();
 		String fileName = file.getOriginalFilename();
 		String place = operationService.getSuitablePlace(type,fileName);
+		operationService.saveFile(LocalFile.builder()
+				.fileName(fileName)
+				.fileType(type)
+				.filePlace(place)
+				.isPublic(false)
+				.user(UserStatic.getUser())
+				.build());
 		file.transferTo(new File(place+"/"+fileName));
 		return "uploaded";
 	}
@@ -42,7 +50,7 @@ public class Operations {
 	public String uploadplace(@RequestParam("file")MultipartFile file) throws IllegalStateException, IOException {
 		String type = file.getContentType();
 		String fileName = file.getOriginalFilename();
-		String place = operationService.getSuitablePlaceOnly(type,fileName);
+		String place = operationService.getSuitablePlace(type,fileName);
 		return place+"/"+fileName;
 	}
 	
@@ -96,9 +104,9 @@ public class Operations {
 	
 	@RequestMapping("/lu")
 	public List<UserModel> listUSers(){
-		return UserStatic.modelUser(
-				operationService.getUsers()
-				);
+		return operationService.getUsers()
+				.stream().map(p -> new UserModel(p.getUserName()))
+				.collect(Collectors.toList());
 	}
 	
 	@RequestMapping("/lt")

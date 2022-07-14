@@ -1,8 +1,5 @@
 package com.db.tahawy.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class UserStatic {
 	private static String userName = null;
 	private static String password = null;
@@ -18,35 +15,6 @@ public class UserStatic {
 		userName =null;
 		password =null;
 		home = null;
-	}
-	
-	public static FileModel modelFile(LocalFile file) {
-		return FileModel.builder()
-				.fileName(file.getFileName())
-				.fileType(file.getFileType())
-				.isPublic(file.getIsPublic())
-				.usermodel(new UserModel(file.getUser().getUserName()))
-				.build();
-	}
-	
-	public static List<FileModel> modelFile(List<LocalFile> files) {
-		List<FileModel> result = new ArrayList<>();
-		for (LocalFile file : files) {
-			result.add(modelFile(file));
-		}
-		return result;
-	}
-	
-	public static UserModel modelUser(User user) {
-		return new UserModel(user.getUserName());
-	}
-	
-	public static List<UserModel> modelUser(List<User> users) {
-		List<UserModel> result = new ArrayList<>();
-		for (User user : users) {
-			result.add(new UserModel(user.getUserName()));
-		}
-		return result;
 	}
 	
 	public static User getUser() {

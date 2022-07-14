@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,6 +19,7 @@ import com.db.tahawy.model.LocalFile;
 import com.db.tahawy.model.User;
 import com.db.tahawy.model.UserFile;
 import com.db.tahawy.model.UserFileId;
+import com.db.tahawy.model.UserModel;
 import com.db.tahawy.model.UserStatic;
 
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ public class OperationsService {
 	private final UserJpa userJpa;
 	private final FileJpa fileJpa;
 	private final UserFileJpa userFileJpa;
-	// this method persist data in database also 
+
 	public String getSuitablePlace(String fileType,String fileName) {
 		if(fileType.isEmpty()) {
 			fileType = "default";
@@ -40,48 +42,45 @@ public class OperationsService {
 		String typePath = UserStatic.getHome()+"/."+fileType;
 		File file = new File(typePath);
 		file.mkdirs();
-		fileJpa.save(new LocalFile(fileName,UserStatic.getUser(), typePath, fileType,false));
 		return typePath;
 	}
+	
+	public void saveFile(LocalFile file) {
+		fileJpa.save(file);
+	}
 
+	private List<FileModel> mapToModel(List<LocalFile> files){
+		return files.stream().map(p -> FileModel.builder()
+						.fileName(p.getFileName())
+						.fileType(p.getFileType())
+						.isPublic(p.getIsPublic())
+						.usermodel(new UserModel(p.getUser().getUserName()))
+						.build()).collect(Collectors.toList());
+	}
+	
 	public List<FileModel> getUserprivateFiles() {
-		return UserStatic.modelFile(
-				fileJpa.findUserPrivateFiles
-				(UserStatic.getUserName())
-				);
+		return mapToModel(fileJpa.findUserPrivateFiles(UserStatic.getUserName()));
 	}
 
 	public List<FileModel> getUserSentFiles() {
-		return UserStatic.modelFile(
-				fileJpa.findUserSentFiles
-				(UserStatic.getUserName())
-				);
+		return mapToModel(fileJpa.findUserSentFiles(UserStatic.getUserName()));
 	}
 	
 	public List<FileModel> getUserRecivedFiles() {
-		return UserStatic.modelFile(
-				fileJpa.findUserRecivedFiles
-				(UserStatic.getUserName())
-				);
+		return mapToModel(fileJpa.findUserRecivedFiles(UserStatic.getUserName()));
 	}
 	
 
 	public List<FileModel> getUserPublishedFiles() {
-		return UserStatic.modelFile(
-				fileJpa.findPublishedFiles(UserStatic.getUserName())
-				);
+		return mapToModel(fileJpa.findPublishedFiles(UserStatic.getUserName()));
 	}
 	
 	public List<FileModel> getUserpublicFiles() {
-		return UserStatic.modelFile(
-				fileJpa.findFileByIsPublic(true)
-				);
+		return mapToModel(fileJpa.findFileByIsPublic(true));
 	}
 	
 	public List<FileModel> getAllFilesByType(String type) {
-		return UserStatic.modelFile(
-				fileJpa.findByFileTypeContaining(type)
-				);
+		return mapToModel(fileJpa.findByFileTypeContaining(type));
 	}
 
 	public LocalFile getFileByName(String name) {
@@ -110,16 +109,6 @@ public class OperationsService {
 			user.setPassword("************");
 		}
 		return users;
-	}
-
-	public String getSuitablePlaceOnly(String fileType, String fileName) {
-		if(fileType.isEmpty()) {
-			fileType = "default";
-		}
-		String typePath = UserStatic.getHome()+"/."+fileType;
-		File file = new File(typePath);
-		file.mkdirs();
-		return typePath;
 	}
 	
 	public List<String> getAllTypes(){
