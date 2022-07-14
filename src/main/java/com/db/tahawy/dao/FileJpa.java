@@ -14,7 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 public interface FileJpa extends JpaRepository<LocalFile, String>{
 	List<LocalFile> findByFileTypeContaining(String fileType);
 	List<LocalFile> findFileByIsPublic(boolean isPublic);
-
+	@Query(
+			value = "select * from files f where f.user_name_key = ?1 and is_public=true",
+			nativeQuery = true
+			)
+	List<LocalFile> findPublishedFiles(String userName);
 	@Query(
 			value = "select f.* from files f where f.user_name_key = ?1"
 					+ " and f.is_public = false and f.name not in "
@@ -28,6 +32,12 @@ public interface FileJpa extends JpaRepository<LocalFile, String>{
 			nativeQuery = true
 			)
 	List<LocalFile> findUserRecivedFiles(String userName);
+	@Query(
+			value = "select f.* from files f where f.user_name_key = ?1 and f.name in "
+					+ "(select file_name from user_file where user_name <> ?1)",
+			nativeQuery = true
+			)
+	List<LocalFile> findUserSentFiles(String userName);
 	@Query(
 			value = "select distinct f.type from files f",
 			nativeQuery = true

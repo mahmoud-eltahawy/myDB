@@ -21,11 +21,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@RestController
-public class Operations {
+import lombok.RequiredArgsConstructor;
 
-	@Autowired
-	private OperationsService operationService;
+@RestController
+@RequiredArgsConstructor
+public class Operations {
+	
+	private final OperationsService operationService;
 	
 	@PostMapping("upload")
 	public String uploadFile(@RequestParam("file")MultipartFile file) throws IllegalStateException, IOException {
@@ -44,14 +46,28 @@ public class Operations {
 		return place+"/"+fileName;
 	}
 	
+	//files that user uploaded
 	@GetMapping("privatefiles")
 	public List<FileModel> getAllFilesNames(){
 		return operationService.getUserprivateFiles();
 	}
+	//files that user published
+	@GetMapping("publishedfiles")
+	public List<FileModel> getPublishedFiles(){
+		return operationService.getUserPublishedFiles();
+	}
+	
+	//files that other users published
 	@GetMapping("publicfiles")
 	public List<FileModel> getPublicFiles(){
 		return operationService.getUserpublicFiles();
 	}
+	//files that user sent
+	@GetMapping("sentfiles")
+	public List<FileModel> getSentFiles(){
+		return operationService.getUserSentFiles();
+	}
+	//files other users sent
 	@GetMapping("recivedfiles")
 	public List<FileModel> getRecivedFiles(){
 		return operationService.getUserRecivedFiles();

@@ -23,15 +23,15 @@ import com.db.tahawy.model.UserStatic;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OperationsService {
 
-	private UserJpa userJpa;
-	private FileJpa fileJpa;
-	private UserFileJpa userFileJpa;
+	private final UserJpa userJpa;
+	private final FileJpa fileJpa;
+	private final UserFileJpa userFileJpa;
 	// this method persist data in database also 
 	public String getSuitablePlace(String fileType,String fileName) {
 		if(fileType.isEmpty()) {
@@ -47,17 +47,30 @@ public class OperationsService {
 	public List<FileModel> getUserprivateFiles() {
 		return UserStatic.modelFile(
 				fileJpa.findUserPrivateFiles
-				(UserStatic.getUser().getUserName())
+				(UserStatic.getUserName())
 				);
 	}
 
-	public List<FileModel> getUserRecivedFiles() {
+	public List<FileModel> getUserSentFiles() {
 		return UserStatic.modelFile(
-				fileJpa.findUserRecivedFiles
-				(UserStatic.getUser().getUserName())
+				fileJpa.findUserSentFiles
+				(UserStatic.getUserName())
 				);
 	}
 	
+	public List<FileModel> getUserRecivedFiles() {
+		return UserStatic.modelFile(
+				fileJpa.findUserRecivedFiles
+				(UserStatic.getUserName())
+				);
+	}
+	
+
+	public List<FileModel> getUserPublishedFiles() {
+		return UserStatic.modelFile(
+				fileJpa.findPublishedFiles(UserStatic.getUserName())
+				);
+	}
 	
 	public List<FileModel> getUserpublicFiles() {
 		return UserStatic.modelFile(

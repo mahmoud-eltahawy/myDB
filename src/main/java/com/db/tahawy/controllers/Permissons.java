@@ -16,7 +16,7 @@ public class Permissons {
 	@Autowired
 	private PermissonService permissonService;
 	
-	@PostMapping("login")
+	@RequestMapping("login")
 	public String login(@RequestParam("username")String userName,
 			@RequestParam("password")String password) {
 		return permissonService.permitUser(userName,password);
