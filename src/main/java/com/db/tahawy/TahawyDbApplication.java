@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.db.tahawy.dao.UserJpa;
 import com.db.tahawy.model.User;
-import com.db.tahawy.services.PrefrencesService;
+import com.db.tahawy.services.AdminService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TahawyDbApplication {
 	private final UserJpa userJpa;
-	private final PrefrencesService prefrencesService;
+	private final AdminService prefrencesService;
 	private final PasswordEncoder passwordEncoder;
 	
 	public static void main(String[] args) {

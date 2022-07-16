@@ -22,9 +22,11 @@ public class AppSecurityConfigure extends WebSecurityConfigurerAdapter{
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
+			.csrf().disable()
 			.authorizeRequests()
-			.antMatchers("/","/createuser").permitAll()
-			.antMatchers("/lu").hasRole(AppUserRole.SUPER_USER.name())
+			.antMatchers("/","/public/**").permitAll()
+			.antMatchers("/user/**").hasAnyRole(AppUserRole.SUPER_USER.name(),AppUserRole.USER.name())
+			.antMatchers("/admin/**").hasRole(AppUserRole.ADMIN.name())
 			.anyRequest()
 			.authenticated()
 			.and()

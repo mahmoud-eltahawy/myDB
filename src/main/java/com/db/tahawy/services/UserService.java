@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class OperationsService {
+public class UserService {
 
 	private final UserJpa userJpa;
 	private final FileJpa fileJpa;
@@ -74,14 +74,6 @@ public class OperationsService {
 	public List<FileModel> getUserPublishedFiles() {
 		return mapToModel(fileJpa.findPublishedFiles(user.getUserName()));
 	}
-	
-	public List<FileModel> getUserpublicFiles() {
-		return mapToModel(fileJpa.findFileByIsPublic(true));
-	}
-	
-	public List<FileModel> getAllFilesByType(String type) {
-		return mapToModel(fileJpa.findByFileTypeContaining(type));
-	}
 
 	public LocalFile getFileByName(String name) {
 		return fileJpa.findById(name).get();
@@ -103,18 +95,6 @@ public class OperationsService {
 		FileCopyUtils.copy(inputStream, response.getOutputStream());
 	}
 
-	public List<User> getUsers() {
-		List<User> users = userJpa.findAll();
-		for (User user : users) {
-			user.setPassword("************");
-		}
-		return users;
-	}
-	
-	public List<String> getAllTypes(){
-		return fileJpa.findAllTypes();
-	}
-
 	public void share(String filename, String username) {
 		LocalFile file = fileJpa.findById(filename).get();
 		User user = userJpa.findById(username).get();
@@ -132,5 +112,9 @@ public class OperationsService {
 		} else {
 			fileJpa.publish(filename);
 		}
+	}
+
+	public User getUserByName(String username) {
+		return userJpa.findById(username).get();
 	}
 }

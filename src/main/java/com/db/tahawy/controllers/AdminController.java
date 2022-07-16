@@ -1,15 +1,16 @@
 package com.db.tahawy.controllers;
 
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.db.tahawy.model.FileModel;
 import com.db.tahawy.model.User;
 import com.db.tahawy.model.UserModel;
-import com.db.tahawy.services.PrefrencesService;
+import com.db.tahawy.services.AdminService;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,13 +20,13 @@ import lombok.RequiredArgsConstructor;
 
 //installing steps
 @RestController
+@RequestMapping("/admin")
 @RequiredArgsConstructor
-public class UserPrefrences {
-	private final PrefrencesService PrefrencesService;
+public class AdminController {
+	private final AdminService PrefrencesService;
 	private final PasswordEncoder passwordEncoder;
-	private User user;
 	//step 1    --> specify where the main folder of the program
-	@PostMapping("/setroot")
+	@PostMapping("/rootset")
 	public String setHomeFolder(
 			@RequestParam("path") String path,
 			@RequestParam("password")String password) {
@@ -33,19 +34,20 @@ public class UserPrefrences {
 			return "sucess";
 	}
 	
-	//step 2    --> create user 
-	@RequestMapping("/createuser")
-	public String setUser(@RequestParam("username")String userName,
-			@RequestParam("password")String password) {
-		User user = new User();
-		user.setUserName(userName);
-		user.setPassword(passwordEncoder.encode(password));
-		PrefrencesService.saveUser(user);
-		return "sucess";
+	@RequestMapping("/lu")
+	public List<UserModel> listUSers(){
+		return PrefrencesService.getUsers()
+				.stream().map(p -> new UserModel(p.getUserName()))
+				.collect(Collectors.toList());
 	}
 	
-	@RequestMapping("inuser")
-	public UserModel getCurrentUser() {
-		return new UserModel(user.getUserName());
+	@GetMapping("/filesbytype")
+	public List<FileModel> getAllFilesByType(@RequestParam("type")String type){
+		return PrefrencesService.getAllFilesByType(type);
+	}
+	
+	@RequestMapping("/lt")
+	public List<String> listTypes(){
+		return PrefrencesService.getAllTypes();
 	}
 }
