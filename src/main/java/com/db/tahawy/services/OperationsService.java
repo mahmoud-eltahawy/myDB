@@ -20,7 +20,6 @@ import com.db.tahawy.model.User;
 import com.db.tahawy.model.UserFile;
 import com.db.tahawy.model.UserFileId;
 import com.db.tahawy.model.UserModel;
-import com.db.tahawy.model.UserStatic;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
@@ -35,11 +34,12 @@ public class OperationsService {
 	private final FileJpa fileJpa;
 	private final UserFileJpa userFileJpa;
 
+	private User user;
 	public String getSuitablePlace(String fileType,String fileName) {
 		if(fileType.isEmpty()) {
 			fileType = "default";
 		}
-		String typePath = UserStatic.getHome()+"/."+fileType;
+		String typePath = user.getHome()+"/."+fileType;
 		File file = new File(typePath);
 		file.mkdirs();
 		return typePath;
@@ -59,20 +59,20 @@ public class OperationsService {
 	}
 	
 	public List<FileModel> getUserprivateFiles() {
-		return mapToModel(fileJpa.findUserPrivateFiles(UserStatic.getUserName()));
+		return mapToModel(fileJpa.findUserPrivateFiles(user.getUserName()));
 	}
 
 	public List<FileModel> getUserSentFiles() {
-		return mapToModel(fileJpa.findUserSentFiles(UserStatic.getUserName()));
+		return mapToModel(fileJpa.findUserSentFiles(user.getUserName()));
 	}
 	
 	public List<FileModel> getUserRecivedFiles() {
-		return mapToModel(fileJpa.findUserRecivedFiles(UserStatic.getUserName()));
+		return mapToModel(fileJpa.findUserRecivedFiles(user.getUserName()));
 	}
 	
 
 	public List<FileModel> getUserPublishedFiles() {
-		return mapToModel(fileJpa.findPublishedFiles(UserStatic.getUserName()));
+		return mapToModel(fileJpa.findPublishedFiles(user.getUserName()));
 	}
 	
 	public List<FileModel> getUserpublicFiles() {

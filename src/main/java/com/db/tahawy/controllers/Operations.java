@@ -9,12 +9,10 @@ import com.db.tahawy.model.FileModel;
 import com.db.tahawy.model.LocalFile;
 import com.db.tahawy.model.User;
 import com.db.tahawy.model.UserModel;
-import com.db.tahawy.model.UserStatic;
 import com.db.tahawy.services.OperationsService;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,18 +28,20 @@ public class Operations {
 	
 	private final OperationsService operationService;
 	
+	private User user;
 	@PostMapping("upload")
 	public String uploadFile(@RequestParam("file")MultipartFile file) throws IllegalStateException, IOException {
 		String type = file.getContentType();
 		String fileName = file.getOriginalFilename();
 		String place = operationService.getSuitablePlace(type,fileName);
-		operationService.saveFile(LocalFile.builder()
+		LocalFile file0 = LocalFile.builder()
 				.fileName(fileName)
 				.fileType(type)
 				.filePlace(place)
 				.isPublic(false)
-				.user(UserStatic.getUser())
-				.build());
+				.user(user)
+				.build();
+		operationService.saveFile(file0);
 		file.transferTo(new File(place+"/"+fileName));
 		return "uploaded";
 	}
