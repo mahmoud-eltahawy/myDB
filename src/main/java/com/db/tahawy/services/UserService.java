@@ -21,6 +21,8 @@ import com.db.tahawy.model.UserFile;
 import com.db.tahawy.model.UserFileId;
 import com.db.tahawy.model.UserModel;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
@@ -34,12 +36,15 @@ public class UserService {
 	private final FileJpa fileJpa;
 	private final UserFileJpa userFileJpa;
 
-	private User user;
+	private User user() {
+		UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return userJpa.findById(userDetails.getUsername()).get();
+	};
 	public String getSuitablePlace(String fileType,String fileName) {
 		if(fileType.isEmpty()) {
 			fileType = "default";
 		}
-		String typePath = user.getHome()+"/."+fileType;
+		String typePath = user().getHome()+"/."+fileType;
 		File file = new File(typePath);
 		file.mkdirs();
 		return typePath;
@@ -59,20 +64,20 @@ public class UserService {
 	}
 	
 	public List<FileModel> getUserprivateFiles() {
-		return mapToModel(fileJpa.findUserPrivateFiles(user.getUserName()));
+		return mapToModel(fileJpa.findUserPrivateFiles(user().getUserName()));
 	}
 
 	public List<FileModel> getUserSentFiles() {
-		return mapToModel(fileJpa.findUserSentFiles(user.getUserName()));
+		return mapToModel(fileJpa.findUserSentFiles(user().getUserName()));
 	}
 	
 	public List<FileModel> getUserRecivedFiles() {
-		return mapToModel(fileJpa.findUserRecivedFiles(user.getUserName()));
+		return mapToModel(fileJpa.findUserRecivedFiles(user().getUserName()));
 	}
 	
 
 	public List<FileModel> getUserPublishedFiles() {
-		return mapToModel(fileJpa.findPublishedFiles(user.getUserName()));
+		return mapToModel(fileJpa.findPublishedFiles(user().getUserName()));
 	}
 
 	public LocalFile getFileByName(String name) {
