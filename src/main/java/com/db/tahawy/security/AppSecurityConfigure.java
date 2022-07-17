@@ -26,7 +26,7 @@ public class AppSecurityConfigure extends WebSecurityConfigurerAdapter{
 			.authorizeRequests()
 			.antMatchers("/","/public/**").permitAll()
 			.antMatchers("/user/**").hasAnyRole(AppUserRole.SUPER_USER.name(),AppUserRole.USER.name())
-			.antMatchers("/admin/**").hasRole(AppUserRole.ADMIN.name())
+			.antMatchers("/admin/**").hasAnyRole(AppUserRole.SUPER_USER.name(),AppUserRole.ADMIN.name())
 			.anyRequest()
 			.authenticated()
 			.and()
