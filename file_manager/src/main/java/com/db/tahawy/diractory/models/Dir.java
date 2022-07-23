@@ -1,42 +1,61 @@
 package com.db.tahawy.diractory.models;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.db.tahawy.diractory.interfaces.IDir;
 
 public class Dir implements IDir{
-	protected IDir father;
-	protected String name;
-	protected List<IDir> sons;
-	private List<IDir> uncles;
+	private IDir father;
+	private String name;
+	private Stack<String> absolutePath;
+	private Set<IDir> sons = new HashSet<>();
+	private Set<IDir> uncles = new HashSet<>();
 	
 	public Dir(IDir father ,String name) {
 		this.father = father;
 		this.name = name;
 	}
-
+	
 	public Dir(String name) {
 		this.name = name;
 	}
 
 	@Override
-	public String getAbsolutePath() {
-		if(father != null) {
-			return father.getAbsolutePath()+ "/" + name;
-		} else {
-			return "/" + name;
+	public Stack<String> getAbsolutePath() {
+		setAbsolutePath();
+		return absolutePath;
+	}
+	
+	@Override
+	public String getPath() {
+		setAbsolutePath();
+		if(absolutePath.isEmpty()) {
+			return "/";
 		}
+		String path = "";
+		while(!absolutePath.isEmpty()) {
+			path =path+"/"+absolutePath.pop();
+		}
+		return path;
+	}
+	
+	@Override
+	public void setAbsolutePath() {
+		this.absolutePath = IDir.fathersNames(getThisDir(),
+				new Stack<>());
 	}
 	
 	@Override
 	public String getFatherPath() {
 		if(father != null) {
-			return father.getAbsolutePath();
+			return father.getPath();
 		} else {
 			return "";
 		}
@@ -45,7 +64,7 @@ public class Dir implements IDir{
 	@Override
 	public String getGrandFatherPath() {
 		if(father.getFather() != null) {
-			return father.getFather().getAbsolutePath();
+			return father.getFather().getPath();
 		} else {
 			return "/";
 		}
@@ -58,7 +77,11 @@ public class Dir implements IDir{
 	
 	@Override
 	public IDir getFather() {
-		return this.father;
+		if(this.father == null) {
+			return IDir.getRoot();
+		} else {
+			return this.father;
+		}
 	}
 	
 	@Override
@@ -72,14 +95,14 @@ public class Dir implements IDir{
 	}
 	
 	@Override
-	public List<IDir> getSons(){
+	public Set<IDir> getSons(){
 		return this.sons;
 	}
 	
 	@Override
-	public void setUnexistingSons(List<String> sons) {
+	public void setUnexistingSons(Set<String> sons) {
 		this.sons = sons.stream().map(func)
-				.collect(Collectors.toList());
+				.collect(Collectors.toSet());
 	}
 		
 	private Function<String, IDir> func = son -> {
@@ -89,47 +112,61 @@ public class Dir implements IDir{
 	@Override
 	public void setExistingSons() {
 		if(this.sons==null) {
-			File file = new File(getAbsolutePath());
-			if(!file.exists()) {
-					file.mkdir();
-			}
-			
-			String[] sonsNames = file.list();
-			if(sonsNames!=null) {
-			this.sons = Arrays.stream(sonsNames).map(func)
-					.collect(Collectors.toList());
+			String[] sonsNames = new File(getPath()).list();
+			if(sonsNames != null) {
+				this.sons = Arrays.stream(sonsNames).map(func)
+						.collect(Collectors.toSet());
 			}
 		}
 	}
 	
 	@Override
-	public List<IDir> existingSonsGetter(){
+	public Set<IDir> existingSonsGetter(){
 		setExistingSons();
 		return sons;
 	}
 	
 	@Override
-	public IDir sonsSetter(List<String> sons) {
+	public IDir getDirExtraSons(Set<String> sons) {
 		IDir dir = getThisDir();
 		dir.setUnexistingSons(sons);
 		return dir;
 	}
 	
 	@Override
+	public Set<IDir> getUncles(){
+		setUncles();
+		return uncles;
+	}
+
+	@Override
+	public void setUncles() {
+		String[] unclesNames = new File(getFatherPath()).list();
+		if(unclesNames != null) {
+			uncles = Arrays.stream(unclesNames).map(uncle -> {
+				return new Dir(new Dir(father,
+						father.getFatherPath()),uncle);
+			}).collect(Collectors.toSet());
+		} else {
+			uncles = new HashSet<>();
+		}
+	}
+	
+	@Override
 	public void delete() {
-		new File(getAbsolutePath()).delete();
+		new File(getPath()).delete();
 	}
 	
 	@Override
 	public void touch(){
-		new File(getAbsolutePath()).mkdir();
+		new File(getPath()).mkdir();
 	}
 	
 	@Override
 	public Double getSizeInGigaByte() {
-		if(new File(getAbsolutePath()).isDirectory()) {
+		if(new File(getPath()).isDirectory()) {
 			
-			List<Double> sizes = IDir.getSubdirs(new File(getAbsolutePath()))
+			List<Double> sizes = IDir.getSubdirs(new File(getPath()))
 				.stream().map(son -> {
 				if(son.isDirectory()) {
 					return 0d;
@@ -148,7 +185,17 @@ public class Dir implements IDir{
 			
 			return totalSize;
 		}else {
-			return IDir.getFileSize(new File(getAbsolutePath()));
+			return IDir.getFileSize(new File(getPath()));
+		}
+	}
+
+	@Override
+	public IDir gotoExistingSon(String son) {
+		setExistingSons();
+		if(sons.contains(new Dir(getThisDir(), son))) {
+			return new Dir(getThisDir(), son);
+		} else {
+			return getThisDir();
 		}
 	}
 	
@@ -160,11 +207,11 @@ public class Dir implements IDir{
 		sons.add(dir);
 		return dir;
 	}
-
+	
 	@Override
-	public List<IDir> addDirs(List<String> dirNames) {
+	public Set<IDir> addDirs(Set<String> dirNames) {
 		setExistingSons();
-		List<IDir> dirs = new ArrayList<>();
+		Set<IDir> dirs = new HashSet<>();
 		dirNames.stream().forEach(dirName -> {
 			IDir dir = new Dir(getThisDir(), dirName);
 			dir.touch();
@@ -172,24 +219,5 @@ public class Dir implements IDir{
 			dirs.add(dir);
 		});
 		return dirs;
-	}
-	
-	@Override
-	public List<IDir> getUncles(){
-		setUncles();
-		return uncles;
-	}
-
-	@Override
-	public void setUncles() {
-		String[] unclesNames = new File(getFatherPath()).list();
-		if(unclesNames != null) {
-			uncles = Arrays.stream(unclesNames).map(uncle -> {
-				return new Dir(new Dir(father,
-						father.getFatherPath()),uncle);
-			}).collect(Collectors.toList());
-		} else {
-			uncles = new ArrayList<>();
-		}
 	}
 }

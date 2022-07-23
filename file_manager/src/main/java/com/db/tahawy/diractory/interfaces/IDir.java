@@ -7,8 +7,38 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+
+import com.db.tahawy.diractory.models.Dir;
 
 public interface IDir {
+	static IDir getRoot() {
+		return new Dir(new Dir(""), "");
+	}
+	
+	static IDir getRootDir(String dir){
+		return new Dir(getRoot(), dir);
+	}
+	
+	static IDir getHome(){
+		return new Dir(getRoot(), "home");
+	}
+	
+	static IDir getUserHome() {
+		return new Dir(getHome(), System.getProperty("user.name"));
+	}
+	
+	static Stack<String> fathersNames(IDir dir,Stack<String> names){
+		names.add(dir.getName());
+		if(!dir.getName().equals("")) {
+			return fathersNames(dir.getFather(), names);
+		} else {
+			names.remove("");
+			return names;
+		}
+	}
+	
 	static List<File> getSubdirs(File file) {
 		List<File> subdirs = new ArrayList<>();
 		File[] files = file.listFiles();
@@ -49,8 +79,6 @@ public interface IDir {
 		}
 	}
 
-	String getAbsolutePath();
-
 	Double getSizeInGigaByte();
 
 	void touch();
@@ -63,19 +91,19 @@ public interface IDir {
 
 	void setExistingSons();
 
-	void setUnexistingSons(List<String> sons);
+	void setUnexistingSons(Set<String> sons);
 
 	IDir addDir(String dirName);
 
-	List<IDir> addDirs(List<String> dirNames);
+	Set<IDir> addDirs(Set<String> dirNames);
 
-	List<IDir> getSons();
+	Set<IDir> getSons();
 
-	List<IDir> existingSonsGetter();
+	Set<IDir> existingSonsGetter();
 
-	IDir sonsSetter(List<String> sons);
+	IDir getDirExtraSons(Set<String> sons);
 
-	List<IDir> getUncles();
+	Set<IDir> getUncles();
 
 	void setUncles();
 
@@ -86,4 +114,13 @@ public interface IDir {
 	IDir getGrandFather();
 
 	String getGrandFatherPath();
+
+	IDir gotoExistingSon(String son);
+
+	void setAbsolutePath();
+
+	Stack<String> getAbsolutePath();
+
+	String getPath();
+
 }
