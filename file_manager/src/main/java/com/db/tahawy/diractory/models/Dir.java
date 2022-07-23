@@ -1,6 +1,7 @@
 package com.db.tahawy.diractory.models;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +15,6 @@ import com.db.tahawy.diractory.interfaces.IDir;
 public class Dir implements IDir{
 	private IDir father;
 	private String name;
-	private Stack<String> absolutePath;
 	private Set<IDir> sons = new HashSet<>();
 	private Set<IDir> uncles = new HashSet<>();
 	
@@ -28,46 +28,31 @@ public class Dir implements IDir{
 	}
 
 	@Override
-	public Stack<String> getAbsolutePath() {
-		setAbsolutePath();
-		return absolutePath;
+	public Stack<String> getPathStack() {
+		return IDir.stackAbsolutePath(getThisDir());
 	}
 	
 	@Override
 	public String getPath() {
-		setAbsolutePath();
-		if(absolutePath.isEmpty()) {
+		Stack<String> pathStack = IDir.stackAbsolutePath(getThisDir());
+		if(pathStack.isEmpty()) {
 			return "/";
 		}
 		String path = "";
-		while(!absolutePath.isEmpty()) {
-			path =path+"/"+absolutePath.pop();
+		while(!pathStack.isEmpty()) {
+			path =path+"/"+pathStack.pop();
 		}
 		return path;
 	}
 	
 	@Override
-	public void setAbsolutePath() {
-		this.absolutePath = IDir.fathersNames(getThisDir(),
-				new Stack<>());
-	}
-	
-	@Override
 	public String getFatherPath() {
-		if(father != null) {
-			return father.getPath();
-		} else {
-			return "";
-		}
+		return father.getPath();
 	}
 	
 	@Override
 	public String getGrandFatherPath() {
-		if(father.getFather() != null) {
-			return father.getFather().getPath();
-		} else {
-			return "/";
-		}
+		return father.getFather().getPath();
 	}
 	
 	@Override
@@ -86,7 +71,7 @@ public class Dir implements IDir{
 	
 	@Override
 	public IDir getGrandFather() {
-		return this.father.getFather();
+		return getFather().getFather();
 	}
 
 	@Override
@@ -100,9 +85,11 @@ public class Dir implements IDir{
 	}
 	
 	@Override
-	public void setUnexistingSons(Set<String> sons) {
-		this.sons = sons.stream().map(func)
+	public Set<IDir> setUnexistingSons(Set<String> sons) {
+		Set<IDir> usons = sons.stream().map(func)
 				.collect(Collectors.toSet());
+		this.sons.addAll(usons);
+		return usons;
 	}
 		
 	private Function<String, IDir> func = son -> {
@@ -111,11 +98,11 @@ public class Dir implements IDir{
 	
 	@Override
 	public void setExistingSons() {
-		if(this.sons==null) {
+		if(this.sons.isEmpty()) {
 			String[] sonsNames = new File(getPath()).list();
 			if(sonsNames != null) {
-				this.sons = Arrays.stream(sonsNames).map(func)
-						.collect(Collectors.toSet());
+				this.sons.addAll(Arrays.stream(sonsNames).map(func)
+						.collect(Collectors.toSet()));
 			}
 		}
 	}
@@ -143,12 +130,10 @@ public class Dir implements IDir{
 	public void setUncles() {
 		String[] unclesNames = new File(getFatherPath()).list();
 		if(unclesNames != null) {
-			uncles = Arrays.stream(unclesNames).map(uncle -> {
+			uncles.addAll(Arrays.stream(unclesNames).map(uncle -> {
 				return new Dir(new Dir(father,
 						father.getFatherPath()),uncle);
-			}).collect(Collectors.toSet());
-		} else {
-			uncles = new HashSet<>();
+			}).collect(Collectors.toSet()));
 		}
 	}
 	
@@ -158,8 +143,20 @@ public class Dir implements IDir{
 	}
 	
 	@Override
-	public void touch(){
+	public void mkdir(){
 		new File(getPath()).mkdir();
+	}
+	
+	@Override
+	public File addFile(String fileName){
+		File file = new File(getPath()+"/"+fileName);
+		try {
+			file.createNewFile();
+			return file;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return file;
+		}
 	}
 	
 	@Override
@@ -189,10 +186,15 @@ public class Dir implements IDir{
 		}
 	}
 
+	
+	public Set<String> existingSonsStrings(){
+		String[] names = new File(getPath()).list();
+		return Arrays.stream(names).collect(Collectors.toSet());
+	}
+	
 	@Override
 	public IDir gotoExistingSon(String son) {
-		setExistingSons();
-		if(sons.contains(new Dir(getThisDir(), son))) {
+		if(existingSonsStrings().contains(son)) {
 			return new Dir(getThisDir(), son);
 		} else {
 			return getThisDir();
@@ -203,7 +205,7 @@ public class Dir implements IDir{
 	public IDir addDir(String dirName) {
 		setExistingSons();
 		IDir dir = new Dir(getThisDir(), dirName);
-		dir.touch();
+		dir.mkdir();
 		sons.add(dir);
 		return dir;
 	}
@@ -214,7 +216,7 @@ public class Dir implements IDir{
 		Set<IDir> dirs = new HashSet<>();
 		dirNames.stream().forEach(dirName -> {
 			IDir dir = new Dir(getThisDir(), dirName);
-			dir.touch();
+			dir.mkdir();
 			sons.add(dir);
 			dirs.add(dir);
 		});

@@ -29,6 +29,12 @@ public interface IDir {
 		return new Dir(getHome(), System.getProperty("user.name"));
 	}
 	
+	static Stack<String> stackAbsolutePath(IDir dir) {
+		Stack<String> result = fathersNames(dir,
+				new Stack<>());
+		return result;
+	}
+	
 	static Stack<String> fathersNames(IDir dir,Stack<String> names){
 		names.add(dir.getName());
 		if(!dir.getName().equals("")) {
@@ -81,7 +87,7 @@ public interface IDir {
 
 	Double getSizeInGigaByte();
 
-	void touch();
+	void mkdir();
 
 	void delete();
 
@@ -91,7 +97,7 @@ public interface IDir {
 
 	void setExistingSons();
 
-	void setUnexistingSons(Set<String> sons);
+	Set<IDir> setUnexistingSons(Set<String> sons);
 
 	IDir addDir(String dirName);
 
@@ -117,10 +123,10 @@ public interface IDir {
 
 	IDir gotoExistingSon(String son);
 
-	void setAbsolutePath();
-
-	Stack<String> getAbsolutePath();
+	Stack<String> getPathStack();
 
 	String getPath();
+
+	File addFile(String fileName);
 
 }

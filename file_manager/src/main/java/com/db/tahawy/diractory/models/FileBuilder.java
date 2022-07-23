@@ -17,7 +17,7 @@ public class FileBuilder {
 	}
 	
 	private void builder(IDir son) {
-		son.touch();
+		son.mkdir();
 		son.getSons().stream().forEach(sn -> {
 			builder(sn);
 		});
